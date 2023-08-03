@@ -1,0 +1,444 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Configuration;
+using System.Net.Sockets;
+using System.Net;
+using System.IO;
+namespace Clients
+{
+    public partial class Form1 : Form
+    {
+        string constring = Convert.ToString(ConfigurationSettings.AppSettings["ConnectionString"]);
+        string p1, p2, p3;
+        int totreqcount;
+        string rproceedstatus = "Proceed", empty = "";
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            ToolTip toolTip1 = new ToolTip();
+            toolTip1.AutoPopDelay = 5000;
+            toolTip1.InitialDelay = 500;
+            toolTip1.ReshowDelay = 500;
+            toolTip1.ShowAlways = true;
+            toolTip1.SetToolTip(this.pictureBox7, "Click To Reload");
+            toolTip1.SetToolTip(this.pictureBox1, "Click To User Login");
+            toolTip1.SetToolTip(this.label3, "Click To User Login");
+            toolTip1.SetToolTip(this.pictureBox2, "Click To User Register");
+            toolTip1.SetToolTip(this.label4, "Click To User Register");
+            toolTip1.SetToolTip(this.pictureBox8, "Click To File Request");
+            toolTip1.SetToolTip(this.label9, "Click To File Request");
+            toolTip1.SetToolTip(this.pictureBox3, "Click To Start Transaction");
+            toolTip1.SetToolTip(this.label5, "Click To Start Transaction");
+            SqlConnection con = new SqlConnection(constring);
+            con.Open();
+            SqlCommand cmd = new SqlCommand("Delete From FileUpload", con);
+            cmd.ExecuteNonQuery();
+            con.Close();
+        }
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+        }
+        private void pictureBox7_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+            groupBox1.Visible = true;
+            pictureBox8.Enabled = false;
+            label9.Enabled = false;
+            pictureBox1.Enabled = true;
+            label3.Enabled = true;
+            pictureBox2.Enabled = true;
+            label4.Enabled = true;
+            label10.Visible = false;
+            label11.Visible = false;
+            linkLabel1.Visible = false;
+            label11.Text = "";
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (textBox1.Text == "")
+            {
+                MessageBox.Show("Enter LoginID.", "Message Box", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+            }
+            else
+            {
+                if (textBox2.Text == "")
+                {
+                    MessageBox.Show("Enter Password.", "Message Box", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                }
+                else
+                {
+                    SqlDataAdapter adp = new SqlDataAdapter("Select loginid,upassword from Register where loginid='" + textBox1.Text + "'and upassword='" + textBox2.Text + "'", constring);
+                    DataSet ds = new DataSet();
+                    adp.Fill(ds);
+
+                    for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
+                    {
+                        p1 = ds.Tables[0].Rows[i]["loginid"].ToString();
+                        p2 = ds.Tables[0].Rows[i]["upassword"].ToString();
+
+                        if (p1 == textBox1.Text && p2 == textBox2.Text)
+                        {
+                            p3 = "yes";
+                            goto Outer;
+                        }
+                    }
+                Outer:
+                    p1 = "";
+                    p2 = "";
+                    if (p3 == "yes")
+                    {
+                        p3 = null;
+                        pictureBox8.Enabled = true;
+                        label9.Enabled = true;
+                        groupBox1.Visible = false;
+                        label10.Visible = true;
+                        label11.Visible = true;
+                        label11.Text = textBox1.Text;
+                        linkLabel1.Visible = true;
+                        pictureBox1.Enabled = false;
+                        label3.Enabled = false;
+                        pictureBox2.Enabled = false;
+                        label4.Enabled = false;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Enter Correct LoginID/Password.", "Message Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+        }
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+            Form2 frm2 = new Form2();
+            frm2.ShowDialog();
+        
+      private void label4_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+            Form2 frm2 = new Form2();
+            frm2.ShowDialog();
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+            groupBox1.Visible = true;
+            pictureBox8.Enabled = false;
+            label9.Enabled = false;
+            label10.Visible = false;
+            label11.Visible = false;
+            linkLabel1.Visible = false;
+            label11.Text = "";
+            pictureBox1.Enabled = true;
+            label3.Enabled = true;
+            pictureBox2.Enabled = true;
+            label4.Enabled = true;
+        }
+        private void pictureBox8_Click(object sender, EventArgs e)
+        {
+            FileRequest fr = new FileRequest(label11.Text);
+            fr.ShowDialog();
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+            FileRequest fr = new FileRequest(label11.Text);
+            fr.ShowDialog();
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            SqlConnection con = new SqlConnection(constring);
+
+            con.Open();
+
+            SqlDataAdapter adp1 = new SqlDataAdapter("Select COUNT(rstatus) as reqstatus from FileUpload where rstatus='" + rproceedstatus + "'", con);
+            DataSet ds1 = new DataSet();
+            adp1.Fill(ds1);
+            totreqcount = Convert.ToInt32(ds1.Tables[0].Rows[0]["reqstatus"].ToString());
+            if (totreqcount == 3)
+            {
+                //START TRANSACTION
+                Transaction tr = new Transaction();
+                tr.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("ERROR - SERVER DO NOT VERIFY FILES.", "Message Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            con.Close();
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+            SqlConnection con = new SqlConnection(constring);
+
+            con.Open();
+
+            SqlDataAdapter adp1 = new SqlDataAdapter("Select COUNT(rstatus) as reqstatus from FileUpload where rstatus='" + rproceedstatus + "'", con);
+            DataSet ds1 = new DataSet();
+            adp1.Fill(ds1);
+            totreqcount = Convert.ToInt32(ds1.Tables[0].Rows[0]["reqstatus"].ToString());
+            if (totreqcount == 3)
+            {
+                //START TRANSACTION
+                Transaction tr = new Transaction();
+                tr.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("ERROR - SERVER DO NOT VERIFY FILES.", "Message Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            con.Close();
+        }
+
+    }
+}
+
+
+
+Server.cs
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Configuration;
+
+namespace SourceMain
+{
+    public partial class Form1 : Form
+    {
+        string constring = Convert.ToString(ConfigurationSettings.AppSettings["ConnectionString"]);
+        int totreqcount;
+        string rproceedstatus = "Proceed", empty = "";
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            ToolTip toolTip1 = new ToolTip();
+
+            toolTip1.AutoPopDelay = 5000;
+            toolTip1.InitialDelay = 500;
+            toolTip1.ReshowDelay = 500;
+            toolTip1.ShowAlways = true;
+            toolTip1.SetToolTip(this.pictureBox7, "Click To Reload");
+            toolTip1.SetToolTip(this.pictureBox1, "Click To Admin Login");
+            toolTip1.SetToolTip(this.label3, "Click To Admin Login");
+            toolTip1.SetToolTip(this.pictureBox2, "Click To Upload Files");
+            toolTip1.SetToolTip(this.label4, "Click To Upload Files");
+            toolTip1.SetToolTip(this.pictureBox8, "Click To Verify Requested Files");
+            toolTip1.SetToolTip(this.label9, "Click To Verify Requested Files");
+            toolTip1.SetToolTip(this.pictureBox3, "Click To Start Transaction");
+            toolTip1.SetToolTip(this.label5, "Click To File Start Transaction");
+
+            SqlConnection con = new SqlConnection(constring);
+            con.Open();
+            SqlCommand cmd = new SqlCommand("Delete From FileUpload", con);
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+            groupBox1.Visible = false;
+            pictureBox2.Enabled = false;
+            label4.Enabled = false;
+            //pictureBox3.Enabled = false;
+            //label5.Enabled = false;
+            pictureBox8.Enabled = false;
+            label9.Enabled = false;
+            pictureBox3.Enabled = false;
+            label5.Enabled = false;
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            pictureBox4.Visible = false;
+            pictureBox5.Visible = false;
+            groupBox1.Visible = true;
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+            pictureBox4.Visible = false;
+            pictureBox5.Visible = false;
+            groupBox1.Visible = true;
+        }
+
+        private void pictureBox7_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Enabled = true;
+            label3.Enabled = true;
+            pictureBox4.Visible = true;
+            pictureBox5.Visible = true;
+            groupBox1.Visible = false;
+            pictureBox2.Enabled = false;
+            label4.Enabled = false;
+            pictureBox3.Enabled = false;
+            label5.Enabled = false;
+            pictureBox8.Enabled = false;
+            label9.Enabled = false;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
+            textBox2.Text = "";
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string txt1 = textBox1.Text.ToUpper();
+            string txt2 = textBox2.Text.ToUpper();
+
+            if (txt1 == "ADMIN" && txt2 == "ADMIN")
+            {
+                groupBox1.Visible = false;
+                pictureBox1.Enabled = false;
+                label3.Enabled = false;
+                pictureBox2.Enabled = true;
+                label4.Enabled = true;
+                pictureBox3.Enabled = true;
+                label5.Enabled = true;
+                pictureBox8.Enabled = true;
+                label9.Enabled = true;
+                pictureBox9.Enabled = true;
+                label10.Enabled = true;
+                pictureBox3.Enabled = true;
+                label5.Enabled = true;
+            }
+            else
+            {
+                
+            }
+            textBox1.Text = "";
+            textBox2.Text = "";
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            FileUpload fu = new FileUpload();
+            fu.ShowDialog();
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+            FileUpload fu = new FileUpload();
+            fu.ShowDialog();
+        }
+
+        private void pictureBox8_Click(object sender, EventArgs e)
+        {
+            Transaction tr = new Transaction();
+            tr.ShowDialog();
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+            Transaction tr = new Transaction();
+            tr.ShowDialog();
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            SqlConnection con = new SqlConnection(constring);
+
+            con.Open();
+
+            SqlDataAdapter adp1 = new SqlDataAdapter("Select COUNT(rstatus) as reqstatus from FileUpload where rstatus='" + rproceedstatus + "'", con);
+            DataSet ds1 = new DataSet();
+            adp1.Fill(ds1);
+            totreqcount = Convert.ToInt32(ds1.Tables[0].Rows[0]["reqstatus"].ToString());
+            if (totreqcount == 3)
+            {
+                //START TRANSACTION
+                Transaction tr = new Transaction();
+                tr.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("ERROR - DO NOT PROCEED FILES.", "Message Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            con.Close();
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+            SqlConnection con = new SqlConnection(constring);
+
+            con.Open();
+
+            SqlDataAdapter adp1 = new SqlDataAdapter("Select COUNT(rstatus) as reqstatus from FileUpload where rstatus='" + rproceedstatus + "'", con);
+            DataSet ds1 = new DataSet();
+            adp1.Fill(ds1);
+            totreqcount = Convert.ToInt32(ds1.Tables[0].Rows[0]["reqstatus"].ToString());
+            if (totreqcount == 3)
+            {
+                //START TRANSACTION
+                Transaction tr = new Transaction();
+                tr.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("ERROR - DO NOT PROCEED FILES.", "Message Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            con.Close();
+        }
+        private void pictureBox9_Click(object sender, EventArgs e)
+        {
+            RequestFiles rf = new RequestFiles();
+            rf.ShowDialog();
+        }
+        private void label10_Click(object sender, EventArgs e)
+        {
+            RequestFiles rf = new RequestFiles();
+            rf.ShowDialog();
+        }
+        //private void button3_Click(object sender, EventArgs e)
+        //{
+        //    Form2 frm2 = new Form2();
+        //    frm2.ShowDialog();
+        //}
+    }
+}
+
+ 
